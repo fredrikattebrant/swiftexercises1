@@ -27,21 +27,24 @@ class ViewController: UIViewController {
     
     @IBAction private func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
-        if digit == "." {
+        switch digit {
+        case ",":
             if userTypedComma {
                 // only allow this once
                 return
             }
             userTypedComma = true
+        default:
+            break
         }
         if userIsInTheMiddleOfTyping {
-            let textCurrentlyInDisplay = display.text!
-            display.text = textCurrentlyInDisplay + digit
+            let textCurrentlyInDisplay = displayValue
+            displayValue = textCurrentlyInDisplay + digit
         } else {
             if userTypedComma {
-                display.text = "0."
+                displayValue = "0."
             } else {
-                display.text = digit
+                displayValue = digit
             }
         }
         userIsInTheMiddleOfTyping = true
@@ -68,5 +71,12 @@ class ViewController: UIViewController {
             brain.performOperation(symbol: mathematicalSymbol)
         }
         displayValue = String(brain.result)
+    }
+    
+    @IBAction func reset(_ sender: UIButton) {
+        brain.clear()
+        userIsInTheMiddleOfTyping = false
+        userTypedComma = false
+        displayValue = "0"
     }
 }
