@@ -27,13 +27,11 @@ class CalculatorBrain {
         "+": Operation.BinaryOperation({$0 + $1}),
         "-": Operation.BinaryOperation({$0 - $1}),
         "=": Operation.Equals,
-        ".": Operation.EnterFloatingPointOperation()
     ]
     
     private enum Operation {
         case BinaryOperation((Double, Double)->Double)
         case Constant(Double)
-        case EnterFloatingPointOperation()
         case Equals //((Double, Double)->Double)
         case UnaryOperation((Double)->Double)
     }
@@ -46,16 +44,6 @@ class CalculatorBrain {
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
             case .Constant(let value):
                 accumulator = value
-            case .EnterFloatingPointOperation():
-                // TODO how continue with decimals? 
-                // TODO below just a placeholder line - FIXIT!
-                // 1 + '.' + 1 => 1.1
-                // '.' + 1 => 0.1
-                // 1.1 + '.' + 2 => 1.12 (or a beep/warning)
-                //
-                // if first entry and '.' is pressed -> pendingDecimal
-                // if 
-                accumulator = accumulator * 1
             case .Equals:
                 executePendingBinaryOperation()
             case .UnaryOperation(let function):
@@ -79,9 +67,6 @@ class CalculatorBrain {
     }
     
     var result: Double {
-        get {
-            return accumulator
-        }
-        // no set -> read-only property!
+        return accumulator
     }
 }

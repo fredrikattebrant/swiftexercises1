@@ -23,38 +23,50 @@ class ViewController: UIViewController {
     @IBOutlet private weak var display: UILabel!
     
     private var userIsInTheMiddleOfTyping = false
+    private var userTypedComma = false
     
     @IBAction private func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
+        if digit == "." {
+            if userTypedComma {
+                // only allow this once
+                return
+            }
+            userTypedComma = true
+        }
         if userIsInTheMiddleOfTyping {
             let textCurrentlyInDisplay = display.text!
             display.text = textCurrentlyInDisplay + digit
         } else {
-            display.text = digit
+            if userTypedComma {
+                display.text = "0."
+            } else {
+                display.text = digit
+            }
         }
         userIsInTheMiddleOfTyping = true
     }
     
-    private var displayValue: Double {
+    private var displayValue: String {
         get {
-            return Double(display.text!)!
+            return display.text!
         }
         set {
-            display.text = String(newValue)
+            display.text = newValue
         }
     }
     
     private var brain = CalculatorBrain()
     
     @IBAction private func performOperation(_ sender: UIButton) {
-        if (userIsInTheMiddleOfTyping) {
-            brain.setOperand(operand: displayValue)
+        if userIsInTheMiddleOfTyping {
+            brain.setOperand(operand: Double(displayValue)!)
         }
         userIsInTheMiddleOfTyping = false
+        userTypedComma = false
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(symbol: mathematicalSymbol)
         }
-        displayValue = brain.result
+        displayValue = String(brain.result)
     }
 }
-
