@@ -22,6 +22,8 @@ class ViewController: UIViewController {
     
     @IBOutlet private weak var display: UILabel!
     
+    @IBOutlet private weak var sequence: UILabel!
+    
     private var userIsInTheMiddleOfTyping = false
     private var userTypedComma = false
     
@@ -59,6 +61,20 @@ class ViewController: UIViewController {
         }
     }
     
+    private var sequenceValue: String {
+        get {
+            let value = sequence.text!
+            return value.isEmpty ? " " : value
+        }
+        set {
+            var value = newValue.isEmpty ? " " : newValue
+            if (brain.isPartialResult) {
+                value += "..."
+            }
+            sequence.text = value
+        }
+    }
+    
     private var brain = CalculatorBrain()
     
     @IBAction private func performOperation(_ sender: UIButton) {
@@ -71,6 +87,20 @@ class ViewController: UIViewController {
             brain.performOperation(symbol: mathematicalSymbol)
         }
         displayValue = String(brain.result)
+        sequenceValue = brain.description
+    }
+    
+    @IBAction func clearLastDigit(_ sender: UIButton) {
+        if displayValue.isEmpty {
+            return
+        }
+        let indexEndOfText = displayValue.index(displayValue.endIndex, offsetBy: -1)
+        let newDisplayValue = displayValue.substring(to: indexEndOfText)
+        if newDisplayValue.isEmpty {
+            displayValue = "0"
+        } else {
+            displayValue = newDisplayValue
+        }
     }
     
     @IBAction func reset(_ sender: UIButton) {
@@ -78,5 +108,6 @@ class ViewController: UIViewController {
         userIsInTheMiddleOfTyping = false
         userTypedComma = false
         displayValue = "0"
+        sequenceValue = " "
     }
 }

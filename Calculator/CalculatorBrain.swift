@@ -14,11 +14,14 @@ class CalculatorBrain {
     
     func setOperand(operand: Double) {
         accumulator = operand
+        description = String(operand)
+        print("setOperand: \(operand)")
     }
     
     func clear() {
         accumulator = 0.0
         pending = nil
+        sequence = ""
     }
     
     private var operations: Dictionary<String,Operation> = [
@@ -35,7 +38,7 @@ class CalculatorBrain {
         "-": Operation.BinaryOperation({$0 - $1}),
         "xʸ": Operation.BinaryOperation({pow($0, $1)}),
         "=": Operation.Equals,
-    ]
+        ]
     
     private enum Operation {
         case BinaryOperation((Double, Double)->Double)
@@ -45,17 +48,23 @@ class CalculatorBrain {
     }
     
     func performOperation(symbol: String) {
+        print("performOperation: \(symbol)")
+        //description += String(accumulator)
         if let operation = operations[symbol] {
             switch operation {
             case .BinaryOperation(let function):
                 executePendingBinaryOperation()
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
+                description = symbol
             case .Constant(let value):
                 accumulator = value
+                description = symbol
             case .Equals:
                 executePendingBinaryOperation()
+                description += "="
             case .UnaryOperation(let function):
                 accumulator = function(accumulator)
+                description = symbol + "(\(accumulator))"
             }
         }
     }
@@ -76,5 +85,26 @@ class CalculatorBrain {
     
     var result: Double {
         return accumulator
+    }
+    
+
+    private var sequence = ""
+    
+    var description: String {
+        get {
+            return sequence
+        }
+        set {
+            if isPartialResult {
+                sequence += newValue
+            } else {
+                sequence = newValue
+            }
+            print("Sequence: " + sequence)
+        }
+    }
+    
+    var isPartialResult: Bool {
+        return pending != nil
     }
 }
